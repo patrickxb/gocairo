@@ -1,0 +1,10 @@
+gocairo
+
+Go binding for cairographics.org
+
+Original author:  dethe
+Original repository:  http://bitbucket.org/dethe/gocairo/
+
+Minor modifications by Patrick Crosby @patrickxb  xblabs.com
+
+
