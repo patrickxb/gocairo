@@ -228,6 +228,10 @@ type Pattern struct {
 	pattern *C.cairo_pattern_t;
 }
 
+type TextExtents struct {
+        extents C.cairo_text_extents_t;
+}
+
 // Golang struct to hold both a cairo surface and a cairo context
 type Surface struct {
 	surface	*C.cairo_surface_t;
@@ -525,6 +529,22 @@ func (self *Surface) ShowText(text string) {
 	p := C.CString(text);
 	C.cairo_show_text(self.context, p);
 	C.free(unsafe.Pointer(p));
+}
+
+func (self *Surface) GetTextExtents(text string) (xbearing, ybearing, width, height, xadvance, yadvance float64) {
+        p := C.CString(text)
+        e := new(TextExtents)
+        C.cairo_text_extents(self.context, p, &(e.extents))
+        C.free(unsafe.Pointer(p))
+
+        xbearing = float64(e.extents.x_bearing)
+        ybearing = float64(e.extents.y_bearing)
+        width = float64(e.extents.width)
+        height = float64(e.extents.height)
+        xadvance = float64(e.extents.x_advance)
+        yadvance = float64(e.extents.y_advance)
+
+        return
 }
 
 func (self *Surface) Finish()	{ C.cairo_destroy(self.context) }
