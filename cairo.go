@@ -1,5 +1,6 @@
 package cairo
 
+// #cgo LDFLAGS: -lcairo
 // #include <cairo/cairo.h>
 // #include <stdlib.h>
 import "C"
