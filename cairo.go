@@ -233,6 +233,10 @@ type TextExtents struct {
         extents C.cairo_text_extents_t
 }
 
+type FontExtents struct {
+        extents C.cairo_font_extents_t
+}
+
 // Golang struct to hold both a cairo surface and a cairo context
 type Surface struct {
         surface *C.cairo_surface_t
@@ -316,6 +320,16 @@ func (self *Surface) SetLineJoin(line_join_t int) {
     C.cairo_set_dash(self.context, dashesp, C.int(num_dashes), C.double(offset));
 }
 */
+
+func (self *Surface) SetDash(width float64) {
+        x := C.double(width)
+        C.cairo_set_dash(self.context, &x, C.int(1), C.double(0.0))
+}
+
+func (self *Surface) ClearDash() {
+        C.cairo_set_dash(self.context, nil, C.int(0), C.double(0.0))
+}
+
 func (self *Surface) SetMiterLimit(limit float64) {
         C.cairo_set_miter_limit(self.context, C.double(limit))
 }
@@ -532,20 +546,43 @@ func (self *Surface) ShowText(text string) {
         C.free(unsafe.Pointer(p))
 }
 
-func (self *Surface) GetTextExtents(text string) (xbearing, ybearing, width, height, xadvance, yadvance float64) {
+type GTextExtents struct {
+        XBearing, YBearing, Width, Height, XAdvance, YAdvance float64
+}
+
+func (self *Surface) GetTextExtents(text string) *GTextExtents {
         p := C.CString(text)
         e := new(TextExtents)
         C.cairo_text_extents(self.context, p, &(e.extents))
         C.free(unsafe.Pointer(p))
 
-        xbearing = float64(e.extents.x_bearing)
-        ybearing = float64(e.extents.y_bearing)
-        width = float64(e.extents.width)
-        height = float64(e.extents.height)
-        xadvance = float64(e.extents.x_advance)
-        yadvance = float64(e.extents.y_advance)
+        r := new(GTextExtents)
+        r.XBearing = float64(e.extents.x_bearing)
+        r.YBearing = float64(e.extents.y_bearing)
+        r.Width = float64(e.extents.width)
+        r.Height = float64(e.extents.height)
+        r.XAdvance = float64(e.extents.x_advance)
+        r.YAdvance = float64(e.extents.y_advance)
 
-        return
+        return r
+}
+
+type GFontExtents struct {
+        Ascent, Descent, Height, MaxXAdvance, MaxYAdvance float64
+}
+
+func (self *Surface) GetFontExtents() *GFontExtents {
+        e := new(FontExtents)
+        C.cairo_font_extents(self.context, &(e.extents))
+
+        r := new(GFontExtents)
+        r.Ascent = float64(e.extents.ascent)
+        r.Descent = float64(e.extents.descent)
+        r.Height = float64(e.extents.height)
+        r.MaxXAdvance = float64(e.extents.max_x_advance)
+        r.MaxYAdvance = float64(e.extents.max_y_advance)
+
+        return r
 }
 
 func (self *Surface) Finish() { C.cairo_destroy(self.context) }
