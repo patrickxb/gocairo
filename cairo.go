@@ -1,6 +1,7 @@
 package cairo
 
-// #cgo LDFLAGS: -lcairo
+// #cgo LDFLAGS: -L/usr/local/Cellar/cairo/1.10.2/lib -lcairo
+// #cgo CFLAGS: -I/usr/local/Cellar/cairo/1.10.2/include
 // #include <cairo/cairo.h>
 // #include <stdlib.h>
 import "C"
